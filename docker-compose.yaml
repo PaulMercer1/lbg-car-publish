@@ -1,0 +1,50 @@
+    version: '3.1'
+
+    services:
+        # Define the react front-end deployment
+        car-react:
+            image: paulmercer/react-car
+            restart: always
+            depends_on:
+              - car-api
+            ports:
+              - 3000:80
+            networks:
+              - frontend
+
+        # Define the spring api
+        car-api:
+            image: paulmercer/spring-car
+            restart: always
+            ports:
+              - 8000:8000
+            depends_on:
+              - mysqldb
+            environment:
+              db_user : root 
+              db_password: secret 
+              db_url: "jdbc:mysql://mysqldb:3306/cardb_jwt"
+            networks:
+              - frontend
+              - backend
+        # Define the database service
+        mysqldb:
+            image: mysql:8.0
+            restart: always
+            environment:
+                MYSQL_DATABASE: cardb_jwt
+                MYSQL_ROOT_PASSWORD: secret
+            ports:
+              - 3306:3306
+            volumes:
+                - db:/var/lib/mysql
+            networks:
+              - backend
+
+    # Define our storage volumes                
+    volumes:
+        db:
+    
+    networks:
+      backend:
+      frontend:
